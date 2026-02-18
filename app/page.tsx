@@ -5,12 +5,14 @@ import { supabase } from '../lib/supabase'
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
+  const [bookmarks, setBookmarks] = useState<any[]>([])
+  const [selectedTag, setSelectedTag] = useState('All')
+  const [darkMode, setDarkMode] = useState(false)
+
+  const [showModal, setShowModal] = useState(false)
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
-  const [bookmarks, setBookmarks] = useState<any[]>([])
-  const [search, setSearch] = useState('')
-  const [darkMode, setDarkMode] = useState(false)
-  const [showModal, setShowModal] = useState(false)
+  const [tag, setTag] = useState('General')
 
   useEffect(() => {
     getUser()
@@ -37,9 +39,7 @@ export default function Home() {
   const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: 'http://localhost:3000'
-      }
+      options: { redirectTo: 'http://localhost:3000' }
     })
   }
 
@@ -52,11 +52,13 @@ export default function Home() {
     if (!title || !url) return
 
     await supabase.from('bookmarks').insert([
-      { title, url, user_id: user.id },
+      { title, url, tag, user_id: user.id },
     ])
 
     setTitle('')
     setUrl('')
+    setTag('General')
+    setShowModal(false)
     fetchBookmarks(user.id)
   }
 
@@ -65,19 +67,26 @@ export default function Home() {
     fetchBookmarks(user.id)
   }
 
-  const filteredBookmarks = bookmarks.filter((b) =>
-    b.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const uniqueTags = ['All', ...new Set(bookmarks.map(b => b.tag || 'General'))]
+
+  const filteredBookmarks =
+    selectedTag === 'All'
+      ? bookmarks
+      : bookmarks.filter(b => b.tag === selectedTag)
 
   return (
     <>
       <div className={`app ${darkMode ? 'dark' : ''}`}>
 
+        {/* HEADER */}
         <header className="header">
-          <h1>SmartBookmark</h1>
+          <h2>SmartBookmark</h2>
           <div>
+            <button onClick={() => setShowModal(true)} className="create-btn">
+              + Create
+            </button>
             <button onClick={() => setDarkMode(!darkMode)} className="toggle-btn">
-              {darkMode ? '☀ Light' : '🌙 Dark'}
+              {darkMode ? '☀' : '🌙'}
             </button>
             {user && (
               <button onClick={handleLogout} className="logout-btn">
@@ -89,79 +98,86 @@ export default function Home() {
 
         {!user ? (
           <div className="login-screen">
-            <div className="login-card">
-              <h2>Save Your Favorite Links</h2>
-              <button onClick={handleLogin} className="primary-btn">
-                Login with Google
-              </button>
-            </div>
+            <button onClick={handleLogin} className="primary-btn">
+              Login with Google
+            </button>
           </div>
         ) : (
-          <main className="dashboard">
+          <div className="layout">
 
-            <p className="welcome">Welcome, {user.email}</p>
+            {/* SIDEBAR */}
+            <aside className="sidebar">
+              {uniqueTags.map((t) => (
+                <div
+                  key={t}
+                  className={`tag ${selectedTag === t ? 'active' : ''}`}
+                  onClick={() => setSelectedTag(t)}
+                >
+                  {t}
+                </div>
+              ))}
+            </aside>
 
-            <div className="card">
-              <h3>Add Bookmark</h3>
-              <input
-                type="text"
-                placeholder="Website Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="https://example.com"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-              />
-              <button onClick={addBookmark} className="primary-btn">
-                Add
-              </button>
-            </div>
-
-            {/* VIEW ALL BUTTON */}
-            <button className="view-btn" onClick={() => setShowModal(true)}>
-              View All Bookmarks ({bookmarks.length})
-            </button>
-
-          </main>
-        )}
-      </div>
-
-      {/* MODAL */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-
-            <div className="modal-header">
-              <h3>All Bookmarks</h3>
-              <button onClick={() => setShowModal(false)}>✕</button>
-            </div>
-
-            <input
-              type="text"
-              placeholder="Search bookmarks..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="modal-search"
-            />
-
-            <div className="bookmark-list">
+            {/* CONTENT */}
+            <main className="content">
               {filteredBookmarks.map((bookmark) => (
-                <div key={bookmark.id} className="bookmark-item">
-                  <a href={bookmark.url} target="_blank">
-                    {bookmark.title}
-                  </a>
-                  <button onClick={() => deleteBookmark(bookmark.id)}>✕</button>
+                <div key={bookmark.id} className="card">
+                  <div>
+                    <h4>{bookmark.title}</h4>
+                    <p>{bookmark.url}</p>
+                    <small>{bookmark.tag}</small>
+                  </div>
+
+                  <div className="card-actions">
+                    <a href={bookmark.url} target="_blank">
+                      Open
+                    </a>
+                    <button onClick={() => deleteBookmark(bookmark.id)}>
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
 
               {filteredBookmarks.length === 0 && (
-                <p className="empty">No bookmarks found.</p>
+                <p>No bookmarks in this tag.</p>
               )}
-            </div>
+            </main>
 
+          </div>
+        )}
+      </div>
+
+      {/* CREATE MODAL */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Add Bookmark</h3>
+
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <input
+              type="text"
+              placeholder="URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+            />
+
+            <input
+              type="text"
+              placeholder="Tag (Work, Study...)"
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+            />
+
+            <button onClick={addBookmark} className="primary-btn">
+              Add
+            </button>
           </div>
         </div>
       )}
@@ -170,63 +186,86 @@ export default function Home() {
 
         .app {
           min-height: 100vh;
-          padding: 20px;
           background: linear-gradient(135deg, #667eea, #764ba2);
-          color: #fff;
+          color: white;
+          padding: 20px;
         }
 
         .dark {
-          background: linear-gradient(135deg, #1f1f1f, #111);
+          background: #111;
         }
 
         .header {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 40px;
+          margin-bottom: 20px;
         }
 
-        .toggle-btn, .logout-btn, .view-btn {
+        .create-btn, .toggle-btn, .logout-btn {
           margin-left: 10px;
-          background: rgba(255,255,255,0.2);
+          padding: 6px 12px;
+          border-radius: 8px;
           border: none;
-          padding: 8px 14px;
-          border-radius: 20px;
-          color: white;
           cursor: pointer;
         }
 
-        .dashboard {
-          max-width: 600px;
-          margin: auto;
+        .layout {
+          display: flex;
+          gap: 20px;
+        }
+
+        .sidebar {
+          width: 200px;
+          background: rgba(255,255,255,0.1);
+          padding: 15px;
+          border-radius: 10px;
+        }
+
+        .tag {
+          padding: 8px;
+          cursor: pointer;
+          border-radius: 6px;
+          margin-bottom: 8px;
+        }
+
+        .tag:hover {
+          background: rgba(255,255,255,0.2);
+        }
+
+        .active {
+          background: white;
+          color: black;
+        }
+
+        .content {
+          flex: 1;
+          display: grid;
+          gap: 15px;
         }
 
         .card {
           background: rgba(255,255,255,0.15);
-          padding: 20px;
-          border-radius: 20px;
-          backdrop-filter: blur(12px);
-          margin-bottom: 20px;
+          padding: 15px;
+          border-radius: 12px;
           display: flex;
-          flex-direction: column;
-          gap: 10px;
+          justify-content: space-between;
         }
 
-        input {
-          padding: 10px;
-          border-radius: 10px;
-          border: none;
+        .card-actions a {
+          margin-right: 10px;
+          color: #00ffcc;
+          text-decoration: none;
         }
 
-        .primary-btn {
-          background: white;
-          color: black;
-          padding: 10px;
-          border-radius: 25px;
+        .card-actions button {
+          background: red;
+          color: white;
           border: none;
+          padding: 4px 8px;
+          border-radius: 6px;
           cursor: pointer;
         }
 
-        /* MODAL */
         .modal-overlay {
           position: fixed;
           inset: 0;
@@ -238,37 +277,27 @@ export default function Home() {
 
         .modal {
           background: #222;
-          width: 90%;
-          max-width: 500px;
           padding: 20px;
-          border-radius: 20px;
-          max-height: 80vh;
-          overflow-y: auto;
-        }
-
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 15px;
-        }
-
-        .modal-search {
-          width: 100%;
-          margin-bottom: 15px;
-        }
-
-        .bookmark-item {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 10px;
-          padding: 10px;
-          background: rgba(255,255,255,0.1);
           border-radius: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          width: 300px;
         }
 
-        .bookmark-item a {
-          color: white;
-          text-decoration: none;
+        input {
+          padding: 8px;
+          border-radius: 6px;
+          border: none;
+        }
+
+        .primary-btn {
+          background: white;
+          color: black;
+          padding: 8px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
         }
 
       `}</style>
