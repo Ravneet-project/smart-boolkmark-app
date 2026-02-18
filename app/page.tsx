@@ -130,14 +130,12 @@ export default function Home() {
     const res = await supabase.from('bookmarks').insert([payload]).select('*').single()
 
     if (res.error || !res.data) {
-      // rollback
       setBookmarks((prev) => prev.filter((x) => x.id !== tempId))
       showToast('Save failed ❌')
       setSaving(false)
       return
     }
 
-    // replace temp with real row
     setBookmarks((prev) => prev.map((x) => (x.id === tempId ? (res.data as Bookmark) : x)))
 
     setTitle('')
@@ -152,14 +150,12 @@ export default function Home() {
   const deleteBookmark = async (id: number) => {
     if (!user?.id) return
 
-    // ✅ Optimistic remove
     const snapshot = bookmarks
     setBookmarks((prev) => prev.filter((x) => x.id !== id))
 
     const { error } = await supabase.from('bookmarks').delete().eq('id', id).eq('user_id', user.id)
 
     if (error) {
-      // rollback
       setBookmarks(snapshot)
       showToast('Delete failed ❌')
       return
@@ -167,30 +163,12 @@ export default function Home() {
     showToast('Deleted ✅')
   }
 
-  // const copyLink = async (link: string) => {
-  //   try {
-  //     await navigator.clipboard.writeText(link)
-  //     showToast('Copied ✅')
-  //   } catch {
-  //     showToast('Copy failed')
-  //   }
-  // }
-
   const safeDomain = (link: string) => {
     try {
       const u = new URL(link)
       return u.hostname.replace('www.', '')
     } catch {
       return link
-    }
-  }
-
-  const safeFavicon = (link: string) => {
-    try {
-      const u = new URL(link)
-      return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64`
-    } catch {
-      return ''
     }
   }
 
@@ -210,19 +188,12 @@ export default function Home() {
       .select('id,favorite')
 
     if (res.error) {
-      console.error('favorite update error:', {
-        message: res.error.message,
-        details: (res.error as any).details,
-        hint: (res.error as any).hint,
-        code: (res.error as any).code,
-      })
       setBookmarks((prev) => prev.map((x) => (x.id === b.id ? { ...x, favorite: !val } : x)))
       showToast('Favorite update failed ❌')
       return
     }
 
     if (!res.data || res.data.length === 0) {
-      console.error('favorite update: 0 rows updated (RLS or wrong id/user_id match)')
       setBookmarks((prev) => prev.map((x) => (x.id === b.id ? { ...x, favorite: !val } : x)))
       showToast('Blocked ❌ (RLS)')
       return
@@ -478,7 +449,6 @@ export default function Home() {
                       {filteredBookmarks.map((b) => {
                         const domain = safeDomain(b.url)
                         const tagLabel = b.tag && b.tag.trim() ? b.tag : 'General'
-                        const favicon = safeFavicon(b.url)
                         const isFav = Boolean(b.favorite)
 
                         return (
@@ -486,8 +456,9 @@ export default function Home() {
                             <div className="card bookmarkCard border-0 shadow-sm h-100">
                               <div className="card-body d-flex flex-column">
                                 <div className="d-flex align-items-start gap-2">
+                                  {/* ✅ FAVICON REMOVED */}
                                   <div className="favWrap">
-                                    {favicon ? <img src={favicon} alt="" className="favImg" /> : <i className="bi bi-link-45deg" />}
+                                    <i className="bi bi-link-45deg" />
                                   </div>
 
                                   <div className="flex-grow-1 min-w-0">
@@ -527,7 +498,6 @@ export default function Home() {
                                   </a>
 
                                   <div className="d-flex gap-1">
-                                    
                                     <button className="iconBtn danger" title="Delete" onClick={() => deleteBookmark(b.id)}>
                                       <i className="bi bi-trash3" />
                                     </button>
@@ -549,8 +519,6 @@ export default function Home() {
                       )}
                     </div>
                   )}
-
-                 
                 </div>
               </div>
             </div>
@@ -620,6 +588,15 @@ export default function Home() {
           letter-spacing: -0.2px;
         }
 
+        /* ✅ Hide Next.js DevTools floating bubble (N) */
+        :global([data-nextjs-devtools]),
+        :global(#__nextjs_devtools),
+        :global(.nextjs-devtools),
+        :global(.nextjs-devtools-button),
+        :global(.nextjs-devtools-panel) {
+          display: none !important;
+        }
+
         .themeDark {
           --panel: rgba(255, 255, 255, 0.08);
           --panel2: rgba(255, 255, 255, 0.06);
@@ -687,7 +664,6 @@ export default function Home() {
           align-items: center;
         }
 
-        /* Search */
         .searchWrap {
           position: relative;
         }
@@ -728,7 +704,6 @@ export default function Home() {
           border-color: rgba(13, 110, 253, 0.55);
         }
 
-        /* Sidebar list */
         .listGroupSoft .list-group-item {
           border: 1px solid transparent;
           border-radius: 16px;
@@ -752,7 +727,6 @@ export default function Home() {
           border-color: var(--border2);
         }
 
-        /* Pills */
         .navPillsSoft .nav-link {
           border-radius: 999px;
           font-size: 0.9rem;
@@ -766,7 +740,6 @@ export default function Home() {
           color: #fff;
         }
 
-        /* Bookmark card */
         .bookmarkCard {
           border-radius: 22px;
           background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.05));
@@ -788,11 +761,6 @@ export default function Home() {
           background: rgba(255, 255, 255, 0.06);
           flex: 0 0 auto;
           overflow: hidden;
-        }
-        .favImg {
-          width: 22px;
-          height: 22px;
-          border-radius: 7px;
         }
 
         .pillSoft {
@@ -847,7 +815,6 @@ export default function Home() {
           background: rgba(255, 255, 255, 0.05);
         }
 
-        /* Modal */
         .modalBackdrop {
           position: fixed;
           inset: 0;
@@ -865,7 +832,6 @@ export default function Home() {
           border: 1px solid var(--border2);
         }
 
-        /* Toast */
         .toastBox {
           position: fixed;
           left: 50%;
@@ -882,7 +848,6 @@ export default function Home() {
           backdrop-filter: blur(14px);
         }
 
-        /* Drawer */
         .drawerBackdrop {
           position: fixed;
           inset: 0;
