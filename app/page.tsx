@@ -590,23 +590,25 @@ export default function Home() {
           display: none !important;
         }
 
-        .themeDark {
-          --panel: rgba(255, 255, 255, 0.07);
-          --panel2: rgba(255, 255, 255, 0.05);
-          --border: rgba(255, 255, 255, 0.13);
-          --border2: rgba(255, 255, 255, 0.1);
-          --text: #fff;
-          --muted: rgba(255, 255, 255, 0.72);
-          --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+     .themeDark {
+  --panel: rgba(255, 255, 255, 0.72);
+  --panel2: rgba(255, 255, 255, 0.55);
+  --border: rgba(17, 17, 17, 0.14);
+  --border2: rgba(17, 17, 17, 0.10);
+  --text: #111;
+  --muted: rgba(17, 17, 17, 0.62);
+  --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
 
-          /* Premium dark + salmon glow */
-          background: radial-gradient(1100px 600px at 15% 15%, rgba(255, 140, 120, 0.28), transparent 70%),
-            radial-gradient(900px 520px at 85% 20%, rgba(255, 180, 150, 0.14), transparent 75%),
-            radial-gradient(700px 420px at 50% 90%, rgba(255, 120, 140, 0.1), transparent 80%),
-            linear-gradient(180deg, #04050a 0%, #070a16 45%, #050612 75%, #020208 100%);
+  /* Light salmon premium background */
+  background:
+    radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
+    radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.40), transparent 75%),
+    radial-gradient(700px 420px at 50% 90%, rgba(255, 140, 120, 0.25), transparent 80%),
+    linear-gradient(160deg, #fff6f3 0%, #ffe9e2 45%, #ffd9cf 75%, #ffc8bb 100%);
 
-          color: var(--text);
-        }
+  color: var(--text);
+}
+
 
         .themeLight {
           --panel: rgba(255, 255, 255, 0.9);
