@@ -115,7 +115,7 @@ Development
 npm run dev
 Open:
 
-http://localhost:3000
+smart-boolkmark-app-7n2l.vercel.app
 
 Production
 npm run build
