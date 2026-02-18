@@ -55,12 +55,13 @@ export default function Home() {
       if (e.key === 'Escape') {
         setShowModal(false)
         setShowFilters(false)
-        setEditId(null) // ✅ reset edit
+        setEditId(null)
       }
     }
 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const getUser = async () => {
@@ -85,15 +86,18 @@ export default function Home() {
     setLoading(false)
   }
 
-  // ✅ PRODUCTION URL
-  const PROD_URL = 'https://smart-boolkmark-app-7n2l.vercel.app/'
+  // ✅ FIX: Always redirect to current origin (works on localhost + vercel)
+  const getRedirectTo = () => {
+    if (typeof window === 'undefined') return 'https://smart-boolkmark-app-7n2l.vercel.app/'
+    return `${window.location.origin}/`
+  }
 
   // LOGIN
   const handleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: PROD_URL,
+        redirectTo: getRedirectTo(),
       },
     })
   }
@@ -105,7 +109,7 @@ export default function Home() {
     setBookmarks([])
 
     if (typeof window !== 'undefined') {
-      window.location.href = PROD_URL
+      window.location.href = getRedirectTo()
     }
   }
 
@@ -114,6 +118,13 @@ export default function Home() {
     if (!s) return s
     if (s.startsWith('http://') || s.startsWith('https://')) return s
     return `https://${s}`
+  }
+
+  const resetModalFields = () => {
+    setTitle('')
+    setUrl('')
+    setTag('General')
+    setEditId(null)
   }
 
   const addBookmark = async () => {
@@ -150,11 +161,8 @@ export default function Home() {
 
     setBookmarks((prev) => prev.map((x) => (x.id === tempId ? (res.data as Bookmark) : x)))
 
-    setTitle('')
-    setUrl('')
-    setTag('General')
+    resetModalFields()
     setShowModal(false)
-    setEditId(null)
     setViewFilter('Recent')
     showToast('Bookmark added')
     setSaving(false)
@@ -201,11 +209,8 @@ export default function Home() {
 
     setBookmarks((prev) => prev.map((x) => (x.id === editId ? (res.data as Bookmark) : x)))
 
-    setTitle('')
-    setUrl('')
-    setTag('General')
+    resetModalFields()
     setShowModal(false)
-    setEditId(null)
     showToast('Bookmark updated')
     setSaving(false)
   }
@@ -420,11 +425,7 @@ export default function Home() {
             <div className="d-flex align-items-center gap-2">
               {user && (
                 <>
-                  <button
-                    className="btn btn-outline-secondary btn-sm d-lg-none"
-                    onClick={() => setShowFilters(true)}
-                    title="Filters"
-                  >
+                  <button className="btn btn-outline-secondary btn-sm d-lg-none" onClick={() => setShowFilters(true)} title="Filters">
                     <i className="bi bi-funnel me-2" />
                     Filters
                   </button>
@@ -432,10 +433,7 @@ export default function Home() {
                   <button
                     className="btn btn-primary btn-sm px-3"
                     onClick={() => {
-                      setEditId(null)
-                      setTitle('')
-                      setUrl('')
-                      setTag('General')
+                      resetModalFields()
                       setShowModal(true)
                     }}
                   >
@@ -445,11 +443,7 @@ export default function Home() {
                 </>
               )}
 
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={() => setDarkMode(!darkMode)}
-                title="Theme"
-              >
+              <button className="btn btn-outline-secondary btn-sm" onClick={() => setDarkMode(!darkMode)} title="Theme">
                 <i className={`bi ${darkMode ? 'bi-sun' : 'bi-moon-stars'}`} />
               </button>
 
@@ -503,11 +497,7 @@ export default function Home() {
                     <ul className="nav nav-pills navPillsSoft">
                       {(['All', 'Recent', 'Favorites'] as ViewFilter[]).map((f) => (
                         <li className="nav-item" key={f}>
-                          <button
-                            className={`nav-link ${viewFilter === f ? 'active' : ''}`}
-                            onClick={() => setViewFilter(f)}
-                            type="button"
-                          >
+                          <button className={`nav-link ${viewFilter === f ? 'active' : ''}`} onClick={() => setViewFilter(f)} type="button">
                             {f === 'All' && <i className="bi bi-grid-3x3-gap me-2" />}
                             {f === 'Recent' && <i className="bi bi-clock-history me-2" />}
                             {f === 'Favorites' && <i className="bi bi-star me-2" />}
@@ -576,7 +566,7 @@ export default function Home() {
                                   </a>
 
                                   <div className="d-flex gap-1">
-                                    {/* ✅ NEW: Edit button */}
+                                    {/* ✅ Edit button */}
                                     <button className="iconBtn" title="Edit" onClick={() => openEdit(b)}>
                                       <i className="bi bi-pencil-square" />
                                     </button>
@@ -635,39 +625,20 @@ export default function Home() {
 
               <div className="mb-3">
                 <label className="form-label text-muted small">Title</label>
-                <input
-                  className="form-control"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. UI inspirations"
-                />
+                <input className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. UI inspirations" />
               </div>
 
               <div className="mb-3">
                 <label className="form-label text-muted small">URL</label>
-                <input
-                  className="form-control"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://..."
-                />
+                <input className="form-control" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
               </div>
 
               <div className="mb-3">
                 <label className="form-label text-muted small">Tag</label>
-                <input
-                  className="form-control"
-                  value={tag}
-                  onChange={(e) => setTag(e.target.value)}
-                  placeholder="Work / Study / Tools"
-                />
+                <input className="form-control" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Work / Study / Tools" />
               </div>
 
-              <button
-                className="btn btn-primary w-100"
-                onClick={editId ? updateBookmark : addBookmark}
-                disabled={saving}
-              >
+              <button className="btn btn-primary w-100" onClick={editId ? updateBookmark : addBookmark} disabled={saving}>
                 {saving ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
@@ -696,11 +667,11 @@ export default function Home() {
 
       <style jsx>{`
         :global(body) {
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
-            Arial;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           letter-spacing: -0.2px;
         }
 
+        /* Hide Next.js DevTools bubble */
         :global([data-nextjs-devtools]),
         :global(#__nextjs_devtools),
         :global(.nextjs-devtools),
@@ -710,16 +681,18 @@ export default function Home() {
         }
 
         .themeDark {
+          /* treat "dark" as a second light theme */
           --panel: rgba(255, 255, 255, 0.78);
-          --panel2: rgba(255, 255, 255, 0.6);
+          --panel2: rgba(255, 255, 255, 0.60);
           --border: rgba(17, 17, 17, 0.14);
-          --border2: rgba(17, 17, 17, 0.1);
+          --border2: rgba(17, 17, 17, 0.10);
           --text: #111;
           --muted: rgba(17, 17, 17, 0.62);
           --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
 
-          background: radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
-            radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.4), transparent 75%),
+          background:
+            radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
+            radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.40), transparent 75%),
             radial-gradient(700px 420px at 50% 90%, rgba(255, 140, 120, 0.25), transparent 80%),
             linear-gradient(160deg, #fff6f3 0%, #ffe9e2 45%, #ffd9cf 75%, #ffc8bb 100%);
 
