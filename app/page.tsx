@@ -83,21 +83,29 @@ export default function Home() {
   }
 
   // ✅ FIX: dynamic redirect for local + Vercel
-  const handleLogin = async () => {
-    const redirectTo =
-      typeof window !== 'undefined' ? `${window.location.origin}/` : 'http://localhost:3000/'
+ const PROD_URL = 'https://smart-boolkmark-app-7n2l.vercel.app/'
 
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo },
-    })
-  }
+// LOGIN
+const handleLogin = async () => {
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: PROD_URL,
+    },
+  })
+}
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    setBookmarks([])
+// LOGOUT
+const handleLogout = async () => {
+  await supabase.auth.signOut()
+  setUser(null)
+  setBookmarks([])
+
+  // redirect back to your vercel home
+  if (typeof window !== 'undefined') {
+    window.location.href = PROD_URL
   }
+}
 
   const normalizeUrl = (u: string) => {
     const s = u.trim()
