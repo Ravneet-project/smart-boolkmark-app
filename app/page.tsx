@@ -25,7 +25,6 @@ export default function Home() {
   const [viewFilter, setViewFilter] = useState<ViewFilter>('All')
   const [darkMode, setDarkMode] = useState(false)
 
-
   const [showModal, setShowModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [title, setTitle] = useState('')
@@ -35,6 +34,9 @@ export default function Home() {
 
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // ✅ NEW: edit mode
+  const [editId, setEditId] = useState<number | null>(null)
 
   const [toast, setToast] = useState<{ show: boolean; msg: string }>({ show: false, msg: '' })
   const showToast = (msg: string) => {
@@ -53,6 +55,7 @@ export default function Home() {
       if (e.key === 'Escape') {
         setShowModal(false)
         setShowFilters(false)
+        setEditId(null) // ✅ reset edit
       }
     }
 
@@ -82,30 +85,29 @@ export default function Home() {
     setLoading(false)
   }
 
-  // ✅ FIX: dynamic redirect for local + Vercel
- const PROD_URL = 'https://smart-boolkmark-app-7n2l.vercel.app/'
+  // ✅ PRODUCTION URL
+  const PROD_URL = 'https://smart-boolkmark-app-7n2l.vercel.app/'
 
-// LOGIN
-const handleLogin = async () => {
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: PROD_URL,
-    },
-  })
-}
-
-// LOGOUT
-const handleLogout = async () => {
-  await supabase.auth.signOut()
-  setUser(null)
-  setBookmarks([])
-
-  // redirect back to your vercel home
-  if (typeof window !== 'undefined') {
-    window.location.href = PROD_URL
+  // LOGIN
+  const handleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: PROD_URL,
+      },
+    })
   }
-}
+
+  // LOGOUT
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUser(null)
+    setBookmarks([])
+
+    if (typeof window !== 'undefined') {
+      window.location.href = PROD_URL
+    }
+  }
 
   const normalizeUrl = (u: string) => {
     const s = u.trim()
@@ -152,8 +154,59 @@ const handleLogout = async () => {
     setUrl('')
     setTag('General')
     setShowModal(false)
+    setEditId(null)
     setViewFilter('Recent')
     showToast('Bookmark added')
+    setSaving(false)
+  }
+
+  // ✅ NEW: open edit modal
+  const openEdit = (b: Bookmark) => {
+    setEditId(b.id)
+    setTitle(b.title || '')
+    setUrl(b.url || '')
+    setTag(b.tag && b.tag.trim() ? b.tag : 'General')
+    setShowModal(true)
+  }
+
+  // ✅ NEW: update bookmark
+  const updateBookmark = async () => {
+    if (!editId || !title.trim() || !url.trim() || !user?.id || saving) return
+    setSaving(true)
+
+    const payload = {
+      title: title.trim(),
+      url: normalizeUrl(url),
+      tag: tag?.trim() ? tag.trim() : 'General',
+    }
+
+    // optimistic UI update
+    const snapshot = bookmarks
+    setBookmarks((prev) => prev.map((x) => (x.id === editId ? { ...x, ...payload } : x)))
+
+    const res = await supabase
+      .from('bookmarks')
+      .update(payload)
+      .eq('id', editId)
+      .eq('user_id', user.id)
+      .select('*')
+      .single()
+
+    if (res.error || !res.data) {
+      setBookmarks(snapshot)
+      showToast('Update failed')
+      setSaving(false)
+      return
+    }
+
+    setBookmarks((prev) => prev.map((x) => (x.id === editId ? (res.data as Bookmark) : x)))
+
+    setTitle('')
+    setUrl('')
+    setTag('General')
+    setShowModal(false)
+    setEditId(null)
+    showToast('Bookmark updated')
     setSaving(false)
   }
 
@@ -367,19 +420,36 @@ const handleLogout = async () => {
             <div className="d-flex align-items-center gap-2">
               {user && (
                 <>
-                  <button className="btn btn-outline-secondary btn-sm d-lg-none" onClick={() => setShowFilters(true)} title="Filters">
+                  <button
+                    className="btn btn-outline-secondary btn-sm d-lg-none"
+                    onClick={() => setShowFilters(true)}
+                    title="Filters"
+                  >
                     <i className="bi bi-funnel me-2" />
                     Filters
                   </button>
 
-                  <button className="btn btn-primary btn-sm px-3" onClick={() => setShowModal(true)}>
+                  <button
+                    className="btn btn-primary btn-sm px-3"
+                    onClick={() => {
+                      setEditId(null)
+                      setTitle('')
+                      setUrl('')
+                      setTag('General')
+                      setShowModal(true)
+                    }}
+                  >
                     <i className="bi bi-plus-lg me-2" />
                     New
                   </button>
                 </>
               )}
 
-              <button className="btn btn-outline-secondary btn-sm" onClick={() => setDarkMode(!darkMode)} title="Theme">
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                onClick={() => setDarkMode(!darkMode)}
+                title="Theme"
+              >
                 <i className={`bi ${darkMode ? 'bi-sun' : 'bi-moon-stars'}`} />
               </button>
 
@@ -433,7 +503,11 @@ const handleLogout = async () => {
                     <ul className="nav nav-pills navPillsSoft">
                       {(['All', 'Recent', 'Favorites'] as ViewFilter[]).map((f) => (
                         <li className="nav-item" key={f}>
-                          <button className={`nav-link ${viewFilter === f ? 'active' : ''}`} onClick={() => setViewFilter(f)} type="button">
+                          <button
+                            className={`nav-link ${viewFilter === f ? 'active' : ''}`}
+                            onClick={() => setViewFilter(f)}
+                            type="button"
+                          >
                             {f === 'All' && <i className="bi bi-grid-3x3-gap me-2" />}
                             {f === 'Recent' && <i className="bi bi-clock-history me-2" />}
                             {f === 'Favorites' && <i className="bi bi-star me-2" />}
@@ -461,7 +535,6 @@ const handleLogout = async () => {
                             <div className="card bookmarkCard border-0 shadow-sm h-100">
                               <div className="card-body d-flex flex-column">
                                 <div className="d-flex align-items-start gap-2">
-                                  {/* ✅ FAVICON REMOVED COMPLETELY */}
                                   <div className="favWrap" aria-hidden="true">
                                     <i className="bi bi-link-45deg" />
                                   </div>
@@ -503,6 +576,11 @@ const handleLogout = async () => {
                                   </a>
 
                                   <div className="d-flex gap-1">
+                                    {/* ✅ NEW: Edit button */}
+                                    <button className="iconBtn" title="Edit" onClick={() => openEdit(b)}>
+                                      <i className="bi bi-pencil-square" />
+                                    </button>
+
                                     <button className="iconBtn danger" title="Delete" onClick={() => deleteBookmark(b.id)}>
                                       <i className="bi bi-trash3" />
                                     </button>
@@ -532,41 +610,73 @@ const handleLogout = async () => {
       </div>
 
       {showModal && (
-        <div className="modalBackdrop" onClick={() => setShowModal(false)}>
+        <div
+          className="modalBackdrop"
+          onClick={() => {
+            setShowModal(false)
+            setEditId(null)
+          }}
+        >
           <div className="modalCard card border-0 shadow" onClick={(e) => e.stopPropagation()}>
             <div className="card-body p-4">
               <div className="d-flex align-items-center justify-content-between mb-3">
-                <div className="fw-bold fs-5">Add Bookmark</div>
-                <button className="iconBtn" onClick={() => setShowModal(false)} title="Close">
+                <div className="fw-bold fs-5">{editId ? 'Edit Bookmark' : 'Add Bookmark'}</div>
+                <button
+                  className="iconBtn"
+                  onClick={() => {
+                    setShowModal(false)
+                    setEditId(null)
+                  }}
+                  title="Close"
+                >
                   <i className="bi bi-x-lg" />
                 </button>
               </div>
 
               <div className="mb-3">
                 <label className="form-label text-muted small">Title</label>
-                <input className="form-control" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. UI inspirations" />
+                <input
+                  className="form-control"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. UI inspirations"
+                />
               </div>
 
               <div className="mb-3">
                 <label className="form-label text-muted small">URL</label>
-                <input className="form-control" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://..." />
+                <input
+                  className="form-control"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://..."
+                />
               </div>
 
               <div className="mb-3">
                 <label className="form-label text-muted small">Tag</label>
-                <input className="form-control" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Work / Study / Tools" />
+                <input
+                  className="form-control"
+                  value={tag}
+                  onChange={(e) => setTag(e.target.value)}
+                  placeholder="Work / Study / Tools"
+                />
               </div>
 
-              <button className="btn btn-primary w-100" onClick={addBookmark} disabled={saving}>
+              <button
+                className="btn btn-primary w-100"
+                onClick={editId ? updateBookmark : addBookmark}
+                disabled={saving}
+              >
                 {saving ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
-                    Saving
+                    {editId ? 'Updating' : 'Saving'}
                   </>
                 ) : (
                   <>
-                    <i className="bi bi-check2-circle me-2" />
-                    Save
+                    <i className={`bi ${editId ? 'bi-arrow-repeat' : 'bi-check2-circle'} me-2`} />
+                    {editId ? 'Update' : 'Save'}
                   </>
                 )}
               </button>
@@ -586,11 +696,11 @@ const handleLogout = async () => {
 
       <style jsx>{`
         :global(body) {
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+            Arial;
           letter-spacing: -0.2px;
         }
 
-        /* Hide Next.js DevTools bubble */
         :global([data-nextjs-devtools]),
         :global(#__nextjs_devtools),
         :global(.nextjs-devtools),
@@ -599,25 +709,22 @@ const handleLogout = async () => {
           display: none !important;
         }
 
-.themeDark {
-  /* treat "dark" as a second light theme */
-  --panel: rgba(255, 255, 255, 0.78);
-  --panel2: rgba(255, 255, 255, 0.60);
-  --border: rgba(17, 17, 17, 0.14);
-  --border2: rgba(17, 17, 17, 0.10);
-  --text: #111;
-  --muted: rgba(17, 17, 17, 0.62);
-  --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
+        .themeDark {
+          --panel: rgba(255, 255, 255, 0.78);
+          --panel2: rgba(255, 255, 255, 0.6);
+          --border: rgba(17, 17, 17, 0.14);
+          --border2: rgba(17, 17, 17, 0.1);
+          --text: #111;
+          --muted: rgba(17, 17, 17, 0.62);
+          --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
 
-  background:
-    radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
-    radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.40), transparent 75%),
-    radial-gradient(700px 420px at 50% 90%, rgba(255, 140, 120, 0.25), transparent 80%),
-    linear-gradient(160deg, #fff6f3 0%, #ffe9e2 45%, #ffd9cf 75%, #ffc8bb 100%);
+          background: radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
+            radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.4), transparent 75%),
+            radial-gradient(700px 420px at 50% 90%, rgba(255, 140, 120, 0.25), transparent 80%),
+            linear-gradient(160deg, #fff6f3 0%, #ffe9e2 45%, #ffd9cf 75%, #ffc8bb 100%);
 
-  color: var(--text);
-}
-
+          color: var(--text);
+        }
 
         .themeLight {
           --panel: rgba(255, 255, 255, 0.9);
@@ -641,14 +748,13 @@ const handleLogout = async () => {
           box-shadow: var(--shadow);
         }
 
-     .glassCard {
-  border-radius: 22px;
-  background: var(--panel);
-  border: 1px solid var(--border2);
-  backdrop-filter: blur(18px);
-  box-shadow: var(--shadow);
-}
-
+        .glassCard {
+          border-radius: 22px;
+          background: var(--panel);
+          border: 1px solid var(--border2);
+          backdrop-filter: blur(18px);
+          box-shadow: var(--shadow);
+        }
 
         .stickySide {
           position: sticky;
@@ -750,16 +856,16 @@ const handleLogout = async () => {
           color: #fff;
         }
 
-  .bookmarkCard {
-  border-radius: 22px;
-  background: var(--panel);
-  border: 1px solid var(--border2);
-  transition: 0.18s ease;
-}
-.bookmarkCard:hover {
-  transform: translateY(-3px);
-  border-color: var(--border);
-}
+        .bookmarkCard {
+          border-radius: 22px;
+          background: var(--panel);
+          border: 1px solid var(--border2);
+          transition: 0.18s ease;
+        }
+        .bookmarkCard:hover {
+          transform: translateY(-3px);
+          border-color: var(--border);
+        }
 
         .favWrap {
           width: 46px;
@@ -773,50 +879,40 @@ const handleLogout = async () => {
           overflow: hidden;
         }
 
-     .pillSoft {
-  background: rgba(255, 255, 255, 0.55) !important;
-  border: 1px solid var(--border2);
-  color: var(--text) !important;
-}
+        .pillSoft {
+          background: rgba(255, 255, 255, 0.55) !important;
+          border: 1px solid var(--border2);
+          color: var(--text) !important;
+        }
 
+        .iconBtn {
+          width: 38px;
+          height: 38px;
+          border-radius: 14px;
+          border: 1px solid var(--border2);
+          background: rgba(255, 255, 255, 0.55);
+          color: var(--text);
+          display: grid;
+          place-items: center;
+          cursor: pointer;
+          transition: 0.15s ease;
+        }
+        .iconBtn:hover {
+          transform: translateY(-1px);
+          background: rgba(255, 255, 255, 0.75);
+        }
 
-       .iconBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 14px;
-  border: 1px solid var(--border2);
-  background: rgba(255, 255, 255, 0.55);
-  color: var(--text);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  transition: 0.15s ease;
-}
-.iconBtn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.75);
-}
-
-       
         .iconBtn.danger {
           background: rgba(220, 53, 69, 0.12);
           border-color: rgba(220, 53, 69, 0.35);
         }
 
-       .starBtn {
-  color: rgba(17, 17, 17, 0.72) !important;
-}
-.starBtn.favOn {
-  color: #ffc107 !important;
-  filter: drop-shadow(0 6px 12px rgba(255, 193, 7, 0.25));
-}
-
-        .themeLight .starBtn {
-          color: rgba(17, 17, 17, 0.7) !important;
+        .starBtn {
+          color: rgba(17, 17, 17, 0.72) !important;
         }
         .starBtn.favOn {
           color: #ffc107 !important;
-          filter: drop-shadow(0 6px 12px rgba(255, 193, 7, 0.2));
+          filter: drop-shadow(0 6px 12px rgba(255, 193, 7, 0.25));
         }
 
         .urlClamp {
