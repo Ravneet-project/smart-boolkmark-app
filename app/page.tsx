@@ -605,10 +605,32 @@ export default function Home() {
           --text: #fff;
           --muted: rgba(255, 255, 255, 0.7);
           --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-          background: radial-gradient(1200px 600px at 20% 10%, rgba(124, 80, 255, 0.62), transparent),
-            radial-gradient(900px 600px at 90% 20%, rgba(4, 6, 7, 0.25), transparent),
-            linear-gradient(160deg, #070a12, #0d1022, #050810);
-          color: var(--text);
+          background:
+  radial-gradient(
+    1100px 600px at 15% 15%,
+    rgba(255, 160, 140, 0.55),
+    transparent 70%
+  ),
+  radial-gradient(
+    900px 500px at 85% 20%,
+    rgba(255, 190, 170, 0.35),
+    transparent 75%
+  ),
+  radial-gradient(
+    700px 400px at 50% 90%,
+    rgba(255, 140, 120, 0.25),
+    transparent 80%
+  ),
+  linear-gradient(
+    160deg,
+    #fff6f3 0%,
+    #ffe9e2 40%,
+    #ffdcd2 70%,
+    #ffcfc4 100%
+  );
+
+color: #2b2b2b;
+
         }
 
         .themeLight {
