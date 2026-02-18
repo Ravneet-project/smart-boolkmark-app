@@ -605,8 +605,8 @@ export default function Home() {
           --text: #fff;
           --muted: rgba(255, 255, 255, 0.7);
           --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-          background: radial-gradient(1200px 600px at 20% 10%, rgba(125, 80, 255, 0.45), transparent),
-            radial-gradient(900px 600px at 90% 20%, rgba(0, 200, 255, 0.25), transparent),
+          background: radial-gradient(1200px 600px at 20% 10%, rgba(124, 80, 255, 0.62), transparent),
+            radial-gradient(900px 600px at 90% 20%, rgba(4, 6, 7, 0.25), transparent),
             linear-gradient(160deg, #070a12, #0d1022, #050810);
           color: var(--text);
         }
