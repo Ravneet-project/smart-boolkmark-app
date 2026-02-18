@@ -23,7 +23,8 @@ export default function Home() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [selectedTag, setSelectedTag] = useState('All')
   const [viewFilter, setViewFilter] = useState<ViewFilter>('All')
-  const [darkMode, setDarkMode] = useState(true)
+  const [darkMode, setDarkMode] = useState(false)
+
 
   const [showModal, setShowModal] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -590,16 +591,16 @@ export default function Home() {
           display: none !important;
         }
 
-     .themeDark {
-  --panel: rgba(255, 255, 255, 0.72);
-  --panel2: rgba(255, 255, 255, 0.55);
+.themeDark {
+  /* treat "dark" as a second light theme */
+  --panel: rgba(255, 255, 255, 0.78);
+  --panel2: rgba(255, 255, 255, 0.60);
   --border: rgba(17, 17, 17, 0.14);
   --border2: rgba(17, 17, 17, 0.10);
   --text: #111;
   --muted: rgba(17, 17, 17, 0.62);
   --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
 
-  /* Light salmon premium background */
   background:
     radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
     radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.40), transparent 75%),
@@ -632,13 +633,14 @@ export default function Home() {
           box-shadow: var(--shadow);
         }
 
-        .glassCard {
-          border-radius: 22px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(22px);
-          box-shadow: var(--shadow);
-        }
+     .glassCard {
+  border-radius: 22px;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
 
         .stickySide {
           position: sticky;
@@ -740,16 +742,16 @@ export default function Home() {
           color: #fff;
         }
 
-        .bookmarkCard {
-          border-radius: 22px;
-          background: linear-gradient(180deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.05));
-          border: 1px solid var(--border2);
-          transition: 0.18s ease;
-        }
-        .bookmarkCard:hover {
-          transform: translateY(-3px);
-          border-color: var(--border);
-        }
+  .bookmarkCard {
+  border-radius: 22px;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  transition: 0.18s ease;
+}
+.bookmarkCard:hover {
+  transform: translateY(-3px);
+  border-color: var(--border);
+}
 
         .favWrap {
           width: 46px;
@@ -763,36 +765,44 @@ export default function Home() {
           overflow: hidden;
         }
 
-        .pillSoft {
-          background: rgba(255, 255, 255, 0.08) !important;
-          border: 1px solid var(--border2);
-          color: inherit !important;
-        }
+     .pillSoft {
+  background: rgba(255, 255, 255, 0.55) !important;
+  border: 1px solid var(--border2);
+  color: var(--text) !important;
+}
 
-        .iconBtn {
-          width: 38px;
-          height: 38px;
-          border-radius: 14px;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.06);
-          color: inherit;
-          display: grid;
-          place-items: center;
-          cursor: pointer;
-          transition: 0.15s ease;
-        }
-        .iconBtn:hover {
-          transform: translateY(-1px);
-          background: rgba(255, 255, 255, 0.11);
-        }
+
+       .iconBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  border: 1px solid var(--border2);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+.iconBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.75);
+}
+
+       
         .iconBtn.danger {
           background: rgba(220, 53, 69, 0.12);
           border-color: rgba(220, 53, 69, 0.35);
         }
 
-        .starBtn {
-          color: rgba(255, 255, 255, 0.78) !important;
-        }
+       .starBtn {
+  color: rgba(17, 17, 17, 0.72) !important;
+}
+.starBtn.favOn {
+  color: #ffc107 !important;
+  filter: drop-shadow(0 6px 12px rgba(255, 193, 7, 0.25));
+}
+
         .themeLight .starBtn {
           color: rgba(17, 17, 17, 0.7) !important;
         }
