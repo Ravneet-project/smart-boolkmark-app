@@ -35,7 +35,6 @@ export default function Home() {
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // toast
   const [toast, setToast] = useState<{ show: boolean; msg: string }>({ show: false, msg: '' })
   const showToast = (msg: string) => {
     setToast({ show: true, msg })
@@ -82,10 +81,14 @@ export default function Home() {
     setLoading(false)
   }
 
+  // ✅ FIX: dynamic redirect for local + Vercel
   const handleLogin = async () => {
+    const redirectTo =
+      typeof window !== 'undefined' ? `${window.location.origin}/` : 'http://localhost:3000/'
+
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'http://localhost:3000' },
+      options: { redirectTo },
     })
   }
 
@@ -102,7 +105,6 @@ export default function Home() {
     return `https://${s}`
   }
 
-  // ✅ AJAX style (no full reload/fetch)
   const addBookmark = async () => {
     if (!title.trim() || !url.trim() || !user?.id || saving) return
     setSaving(true)
@@ -118,7 +120,6 @@ export default function Home() {
       archived: false,
     }
 
-    // ✅ Optimistic UI: add temp item instantly
     const tempId = Date.now() * -1
     const tempRow: Bookmark = {
       ...(payload as any),
@@ -131,7 +132,7 @@ export default function Home() {
 
     if (res.error || !res.data) {
       setBookmarks((prev) => prev.filter((x) => x.id !== tempId))
-      showToast('Save failed ❌')
+      showToast('Save failed')
       setSaving(false)
       return
     }
@@ -143,7 +144,7 @@ export default function Home() {
     setTag('General')
     setShowModal(false)
     setViewFilter('Recent')
-    showToast('Bookmark added ✅')
+    showToast('Bookmark added')
     setSaving(false)
   }
 
@@ -157,10 +158,10 @@ export default function Home() {
 
     if (error) {
       setBookmarks(snapshot)
-      showToast('Delete failed ❌')
+      showToast('Delete failed')
       return
     }
-    showToast('Deleted ✅')
+    showToast('Deleted')
   }
 
   const safeDomain = (link: string) => {
@@ -172,7 +173,6 @@ export default function Home() {
     }
   }
 
-  // ✅ FAVORITE (already ajax/optimistic)
   const clickTimers = useRef<Record<number, any>>({})
 
   const setFavorite = async (b: Bookmark, val: boolean) => {
@@ -189,13 +189,13 @@ export default function Home() {
 
     if (res.error) {
       setBookmarks((prev) => prev.map((x) => (x.id === b.id ? { ...x, favorite: !val } : x)))
-      showToast('Favorite update failed ❌')
+      showToast('Favorite update failed')
       return
     }
 
     if (!res.data || res.data.length === 0) {
       setBookmarks((prev) => prev.map((x) => (x.id === b.id ? { ...x, favorite: !val } : x)))
-      showToast('Blocked ❌ (RLS)')
+      showToast('Blocked by RLS')
       return
     }
 
@@ -299,7 +299,6 @@ export default function Home() {
 
   return (
     <div className={`${darkMode ? 'themeDark' : 'themeLight'} min-vh-100`}>
-      {/* Mobile Filters Drawer */}
       {showFilters && user && (
         <div className="drawerBackdrop" onClick={() => setShowFilters(false)}>
           <div className="drawer" onClick={(e) => e.stopPropagation()}>
@@ -326,7 +325,6 @@ export default function Home() {
       )}
 
       <div className="container py-3">
-        {/* Topbar */}
         <div className="topbar card border-0 shadow-sm">
           <div className="card-body d-flex flex-wrap gap-2 align-items-center justify-content-between">
             <div className="d-flex align-items-center gap-2">
@@ -345,7 +343,7 @@ export default function Home() {
                 <input
                   id="searchBox"
                   className="form-control searchInput"
-                  placeholder="Search bookmarks… (press /)"
+                  placeholder="Search bookmarks (press /)"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -396,7 +394,7 @@ export default function Home() {
               <div className="card border-0 shadow-sm glassCard">
                 <div className="card-body p-4 text-center">
                   <div className="display-6 fw-bold">Welcome</div>
-                  <p className="text-muted mb-4">Login to save & favorite your bookmarks.</p>
+                  <p className="text-muted mb-4">Login to save and favorite your bookmarks.</p>
                   <button onClick={handleLogin} className="btn btn-primary w-100">
                     <i className="bi bi-google me-2" />
                     Continue with Google
@@ -407,7 +405,6 @@ export default function Home() {
           </div>
         ) : (
           <div className="row g-3 mt-2">
-            {/* Sidebar desktop */}
             <div className="col-lg-3 d-none d-lg-block">
               <div className="card border-0 shadow-sm glassCard h-100 stickySide">
                 <div className="card-body">
@@ -416,7 +413,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Main */}
             <div className="col-12 col-lg-9">
               <div className="card border-0 shadow-sm glassCard">
                 <div className="card-body">
@@ -442,7 +438,7 @@ export default function Home() {
                   {loading ? (
                     <div className="loadingBox">
                       <div className="spinner-border spinner-border-sm me-2" role="status" />
-                      Loading bookmarks…
+                      Loading bookmarks
                     </div>
                   ) : (
                     <div className="row g-3">
@@ -456,8 +452,8 @@ export default function Home() {
                             <div className="card bookmarkCard border-0 shadow-sm h-100">
                               <div className="card-body d-flex flex-column">
                                 <div className="d-flex align-items-start gap-2">
-                                  {/* ✅ FAVICON REMOVED */}
-                                  <div className="favWrap">
+                                  {/* ✅ FAVICON REMOVED COMPLETELY */}
+                                  <div className="favWrap" aria-hidden="true">
                                     <i className="bi bi-link-45deg" />
                                   </div>
 
@@ -513,7 +509,7 @@ export default function Home() {
                         <div className="col-12">
                           <div className="emptyBox text-center p-5">
                             <div className="fw-bold fs-5">No bookmarks found</div>
-                            <div className="text-muted">Try changing tag / filter / search.</div>
+                            <div className="text-muted">Try changing tag, filter, or search.</div>
                           </div>
                         </div>
                       )}
@@ -526,7 +522,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="modalBackdrop" onClick={() => setShowModal(false)}>
           <div className="modalCard card border-0 shadow" onClick={(e) => e.stopPropagation()}>
@@ -550,14 +545,14 @@ export default function Home() {
 
               <div className="mb-3">
                 <label className="form-label text-muted small">Tag</label>
-                <input className="form-control" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Work / Study / Tools..." />
+                <input className="form-control" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Work / Study / Tools" />
               </div>
 
               <button className="btn btn-primary w-100" onClick={addBookmark} disabled={saving}>
                 {saving ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" />
-                    Saving...
+                    Saving
                   </>
                 ) : (
                   <>
@@ -571,24 +566,22 @@ export default function Home() {
         </div>
       )}
 
-      {/* Toast */}
       {toast.show && (
         <div className="toastBox">
           <div className="toastPill">
-            <i className="bi bi-sparkles me-2" />
+            <i className="bi bi-info-circle me-2" />
             {toast.msg}
           </div>
         </div>
       )}
 
-      {/* Styles */}
       <style jsx>{`
         :global(body) {
           font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
           letter-spacing: -0.2px;
         }
 
-        /* ✅ Hide Next.js DevTools floating bubble (N) */
+        /* Hide Next.js DevTools bubble */
         :global([data-nextjs-devtools]),
         :global(#__nextjs_devtools),
         :global(.nextjs-devtools),
@@ -598,39 +591,21 @@ export default function Home() {
         }
 
         .themeDark {
-          --panel: rgba(255, 255, 255, 0.08);
-          --panel2: rgba(255, 255, 255, 0.06);
-          --border: rgba(255, 255, 255, 0.14);
-          --border2: rgba(255, 255, 255, 0.12);
+          --panel: rgba(255, 255, 255, 0.07);
+          --panel2: rgba(255, 255, 255, 0.05);
+          --border: rgba(255, 255, 255, 0.13);
+          --border2: rgba(255, 255, 255, 0.1);
           --text: #fff;
-          --muted: rgba(255, 255, 255, 0.7);
-          --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-          background:
-  radial-gradient(
-    1100px 600px at 15% 15%,
-    rgba(255, 160, 140, 0.55),
-    transparent 70%
-  ),
-  radial-gradient(
-    900px 500px at 85% 20%,
-    rgba(255, 190, 170, 0.35),
-    transparent 75%
-  ),
-  radial-gradient(
-    700px 400px at 50% 90%,
-    rgba(255, 140, 120, 0.25),
-    transparent 80%
-  ),
-  linear-gradient(
-    160deg,
-    #fff6f3 0%,
-    #ffe9e2 40%,
-    #ffdcd2 70%,
-    #ffcfc4 100%
-  );
+          --muted: rgba(255, 255, 255, 0.72);
+          --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
-color: #2b2b2b;
+          /* Premium dark + salmon glow */
+          background: radial-gradient(1100px 600px at 15% 15%, rgba(255, 140, 120, 0.28), transparent 70%),
+            radial-gradient(900px 520px at 85% 20%, rgba(255, 180, 150, 0.14), transparent 75%),
+            radial-gradient(700px 420px at 50% 90%, rgba(255, 120, 140, 0.1), transparent 80%),
+            linear-gradient(180deg, #04050a 0%, #070a16 45%, #050612 75%, #020208 100%);
 
+          color: var(--text);
         }
 
         .themeLight {
@@ -657,8 +632,9 @@ color: #2b2b2b;
 
         .glassCard {
           border-radius: 22px;
-          background: var(--panel);
-          backdrop-filter: blur(18px);
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(22px);
           box-shadow: var(--shadow);
         }
 
@@ -673,7 +649,7 @@ color: #2b2b2b;
           border-radius: 18px;
           display: grid;
           place-items: center;
-          background: linear-gradient(135deg, rgba(13, 110, 253, 0.32), rgba(120, 200, 255, 0.18));
+          background: linear-gradient(135deg, rgba(255, 140, 120, 0.25), rgba(255, 190, 170, 0.12));
           border: 1px solid var(--border);
         }
 
@@ -722,8 +698,8 @@ color: #2b2b2b;
           padding-right: 40px;
         }
         .searchInput:focus {
-          box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.18);
-          border-color: rgba(13, 110, 253, 0.55);
+          box-shadow: 0 0 0 0.2rem rgba(255, 140, 120, 0.18);
+          border-color: rgba(255, 160, 140, 0.55);
         }
 
         .listGroupSoft .list-group-item {
@@ -739,8 +715,8 @@ color: #2b2b2b;
           border-color: var(--border2);
         }
         .listGroupSoft .list-group-item.active {
-          background: rgba(13, 110, 253, 0.88);
-          border-color: rgba(13, 110, 253, 0.88);
+          background: rgba(255, 140, 120, 0.85);
+          border-color: rgba(255, 140, 120, 0.85);
           color: #fff;
         }
 
@@ -757,8 +733,8 @@ color: #2b2b2b;
           border: 1px solid var(--border2);
         }
         .navPillsSoft .nav-link.active {
-          background: rgba(13, 110, 253, 0.94);
-          border-color: rgba(13, 110, 253, 0.94);
+          background: rgba(255, 140, 120, 0.9);
+          border-color: rgba(255, 140, 120, 0.9);
           color: #fff;
         }
 
