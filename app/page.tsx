@@ -34,6 +34,7 @@ export default function Home() {
 
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  
 
   // ✅ NEW: edit mode
   const [editId, setEditId] = useState<number | null>(null)
@@ -318,7 +319,7 @@ export default function Home() {
   const FiltersContent = ({ compact }: { compact?: boolean }) => (
     <div className={compact ? 'filtersCompact' : ''}>
       <div className="d-flex align-items-center justify-content-between mb-2">
-        <div className="fw-semibold">Collections</div>
+        <div className="fw-semibold sidebarTitle">Collections</div>
         <span className="badge rounded-pill pillSoft">{uniqueTags.length - 1}</span>
       </div>
 
@@ -399,9 +400,9 @@ export default function Home() {
                 <i className="bi bi-bookmark-star-fill" />
               </div>
               <div className="min-w-0">
-                <div className="fw-bold fs-5 lh-1">SmartBookmark</div>
-                <div className="small text-muted">Save links. Find fast.</div>
-              </div>
+  <div className="fw-bold fs-5 lh-1 brandTitle">SmartBookmark</div>
+  <div className="small brandSub">Save links. Find fast.</div>
+</div>
             </div>
 
             <div className="flex-grow-1 mx-lg-3" style={{ maxWidth: 740 }}>
@@ -431,15 +432,15 @@ export default function Home() {
                   </button>
 
                   <button
-                    className="btn btn-primary btn-sm px-3"
-                    onClick={() => {
-                      resetModalFields()
-                      setShowModal(true)
-                    }}
-                  >
-                    <i className="bi bi-plus-lg me-2" />
-                    New
-                  </button>
+  className="btn btn-primary btn-sm px-3 btnPremium"
+  onClick={() => {
+    resetModalFields()
+    setShowModal(true)
+  }}
+>
+  <i className="bi bi-plus-lg me-2" />
+  New
+</button>
                 </>
               )}
 
@@ -491,7 +492,7 @@ export default function Home() {
                 <div className="card-body">
                   <div className="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3">
                     <div className="min-w-0">
-                      <div className="fw-bold fs-4">Your bookmarks</div>
+                      <div className="fw-bold fs-4 bookmarksTitle">Your bookmarks</div>
                     </div>
 
                     <ul className="nav nav-pills navPillsSoft">
@@ -665,335 +666,584 @@ export default function Home() {
         </div>
       )}
 
-      <style jsx>{`
-        :global(body) {
-          font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-          letter-spacing: -0.2px;
-        }
+     <style jsx>{`
 
-        /* Hide Next.js DevTools bubble */
-        :global([data-nextjs-devtools]),
-        :global(#__nextjs_devtools),
-        :global(.nextjs-devtools),
-        :global(.nextjs-devtools-button),
-        :global(.nextjs-devtools-panel) {
-          display: none !important;
-        }
+/* ===============================
+   🌌 ULTRA GALAXY THEME (FINAL)
+   =============================== */
 
-        .themeDark {
-          /* treat "dark" as a second light theme */
-          --panel: rgba(255, 255, 255, 0.78);
-          --panel2: rgba(255, 255, 255, 0.60);
-          --border: rgba(17, 17, 17, 0.14);
-          --border2: rgba(17, 17, 17, 0.10);
-          --text: #111;
-          --muted: rgba(17, 17, 17, 0.62);
-          --shadow: 0 12px 34px rgba(0, 0, 0, 0.12);
+.themeDark {
+  --text: #eaf0ff;
+  --muted: #9aa3c7;
+  --glass: rgba(20, 25, 60, 0.55);
+  --glass2: rgba(30, 35, 90, 0.45);
+  --border: rgba(255,255,255,0.15);
 
-          background:
-            radial-gradient(1100px 600px at 15% 15%, rgba(255, 160, 140, 0.55), transparent 70%),
-            radial-gradient(900px 520px at 85% 20%, rgba(255, 200, 175, 0.40), transparent 75%),
-            radial-gradient(700px 420px at 50% 90%, rgba(255, 140, 120, 0.25), transparent 80%),
-            linear-gradient(160deg, #fff6f3 0%, #ffe9e2 45%, #ffd9cf 75%, #ffc8bb 100%);
+  background: radial-gradient(circle at center, #0b0f2f 0%, #05010f 70%);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+  
 
-          color: var(--text);
-        }
+/* ☀️ LIGHT THEME */
+.themeLight {
+  --text: #0f172a;
+  --muted: #475569;
+  --glass: rgba(255, 255, 255, 0.75);
+  --glass2: rgba(255, 255, 255, 0.6);
+  --border: rgba(0,0,0,0.08);
 
-        .themeLight {
-          --panel: rgba(255, 255, 255, 0.9);
-          --panel2: rgba(255, 255, 255, 0.75);
-          --border: rgba(17, 17, 17, 0.12);
-          --border2: rgba(17, 17, 17, 0.1);
-          --text: #111;
-          --muted: rgba(17, 17, 17, 0.65);
-          --shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-          background: linear-gradient(160deg, #f7f7ff, #f2fbff);
-          color: var(--text);
-        }
+  background:
+    radial-gradient(circle at 15% 20%, #e0e7ff 0%, transparent 40%),
+    radial-gradient(circle at 85% 30%, #f5d0fe 0%, transparent 40%),
+    radial-gradient(circle at 50% 90%, #cffafe 0%, transparent 50%),
+    #f8fafc;
 
-        .topbar {
-          border-radius: 22px;
-          background: var(--panel);
-          backdrop-filter: blur(18px);
-          position: sticky;
-          top: 12px;
-          z-index: 50;
-          box-shadow: var(--shadow);
-        }
+  color: var(--text);
+  min-height: 100vh;
+}
 
-        .glassCard {
-          border-radius: 22px;
-          background: var(--panel);
-          border: 1px solid var(--border2);
-          backdrop-filter: blur(18px);
-          box-shadow: var(--shadow);
-        }
+/* ✨ GLASS CONTAINERS */
+.glassCard,
+.topbar,
+.bookmarkCard,
+.modalCard {
+  background: linear-gradient(135deg, var(--glass), var(--glass2));
+  backdrop-filter: blur(30px);
+  border-radius: 26px;
+  border: 1px solid var(--border);
+  box-shadow:
+    0 0 40px rgba(139,92,246,0.15),
+    0 30px 80px rgba(0,0,0,0.6);
+}
 
-        .stickySide {
-          position: sticky;
-          top: 92px;
-        }
+/* 🔮 TOPBAR GLOW */
+.topbar {
+  position: sticky;
+  top: 16px;
+  z-index: 50;
+  box-shadow:
+    0 0 50px rgba(124,58,237,0.25),
+    0 25px 60px rgba(0,0,0,0.6);
+}
 
-        .logoBubble {
-          width: 46px;
-          height: 46px;
-          border-radius: 18px;
-          display: grid;
-          place-items: center;
-          background: linear-gradient(135deg, rgba(255, 140, 120, 0.25), rgba(255, 190, 170, 0.12));
-          border: 1px solid var(--border);
-        }
+/* 🔍 SEARCH BAR */
+.searchInput {
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(139,92,246,0.35);
+  color: var(--text);
+}
 
-        .loadingBox {
-          border: 1px dashed var(--border);
-          border-radius: 18px;
-          padding: 14px;
-          background: rgba(255, 255, 255, 0.04);
-          display: inline-flex;
-          align-items: center;
-        }
+.searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(139,92,246,0.35);
+  border-color: #8b5cf6;
+}
 
-        .searchWrap {
-          position: relative;
-        }
-        .searchIcon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          opacity: 0.75;
-        }
-        .clearBtn {
-          position: absolute;
-          right: 10px;
-          top: 50%;
-          transform: translateY(-50%);
-          border: 0;
-          background: transparent;
-          color: inherit;
-          opacity: 0.75;
-          padding: 6px;
-          border-radius: 10px;
-        }
-        .clearBtn:hover {
-          opacity: 1;
-          background: rgba(255, 255, 255, 0.06);
-        }
+/* 🎯 SIDEBAR */
+.listGroupSoft .list-group-item {
+  border-radius: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid transparent;
+  color: var(--text);
+  margin-bottom: 10px;
+  transition: 0.25s ease;
+}
 
-        .searchInput {
-          border-radius: 16px !important;
-          background: var(--panel2);
-          border: 1px solid var(--border2);
-          color: inherit;
-          padding-left: 38px;
-          padding-right: 40px;
-        }
-        .searchInput:focus {
-          box-shadow: 0 0 0 0.2rem rgba(255, 140, 120, 0.18);
-          border-color: rgba(255, 160, 140, 0.55);
-        }
+.listGroupSoft .list-group-item:hover {
+  background: rgba(139,92,246,0.18);
+  border-color: rgba(139,92,246,0.5);
+}
 
-        .listGroupSoft .list-group-item {
-          border: 1px solid transparent;
-          border-radius: 16px;
-          margin-bottom: 8px;
-          background: var(--panel2);
-          color: inherit;
-          transition: 0.15s ease;
-        }
-        .listGroupSoft .list-group-item:hover {
-          transform: translateY(-1px);
-          border-color: var(--border2);
-        }
-        .listGroupSoft .list-group-item.active {
-          background: rgba(255, 140, 120, 0.85);
-          border-color: rgba(255, 140, 120, 0.85);
-          color: #fff;
-        }
+.listGroupSoft .list-group-item.active {
+  background: linear-gradient(135deg,#8b5cf6,#6366f1);
+  color: #fff;
+}
 
-        .tagBtn {
-          border-radius: 999px;
-          border-color: var(--border2);
-        }
+/* 💎 BOOKMARK CARD */
+.bookmarkCard {
+  transition: 0.3s ease;
+}
 
-        .navPillsSoft .nav-link {
-          border-radius: 999px;
-          font-size: 0.9rem;
-          background: var(--panel2);
-          color: inherit;
-          border: 1px solid var(--border2);
-        }
-        .navPillsSoft .nav-link.active {
-          background: rgba(255, 140, 120, 0.9);
-          border-color: rgba(255, 140, 120, 0.9);
-          color: #fff;
-        }
+.bookmarkCard:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow:
+    0 0 50px rgba(99,102,241,0.45),
+    0 40px 100px rgba(0,0,0,0.7);
+  border-color: rgba(139,92,246,0.6);
+}
 
-        .bookmarkCard {
-          border-radius: 22px;
-          background: var(--panel);
-          border: 1px solid var(--border2);
-          transition: 0.18s ease;
-        }
-        .bookmarkCard:hover {
-          transform: translateY(-3px);
-          border-color: var(--border);
-        }
+/* 🟢 OPEN BUTTON (GREEN GLOW LIKE IMAGE) */
+.btn-primary {
+  background: linear-gradient(135deg,#22c55e,#16a34a);
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(34,197,94,0.5);
+  transition: 0.2s ease;
+}
 
-        .favWrap {
-          width: 46px;
-          height: 46px;
-          border-radius: 18px;
-          display: grid;
-          place-items: center;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.06);
-          flex: 0 0 auto;
-          overflow: hidden;
-        }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(34,197,94,0.7);
+}
 
-        .pillSoft {
-          background: rgba(255, 255, 255, 0.55) !important;
-          border: 1px solid var(--border2);
-          color: var(--text) !important;
-        }
+/* ⭐ ICON BUTTON */
+.iconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  transition: 0.2s ease;
+}
 
-        .iconBtn {
-          width: 38px;
-          height: 38px;
-          border-radius: 14px;
-          border: 1px solid var(--border2);
-          background: rgba(255, 255, 255, 0.55);
-          color: var(--text);
-          display: grid;
-          place-items: center;
-          cursor: pointer;
-          transition: 0.15s ease;
-        }
-        .iconBtn:hover {
-          transform: translateY(-1px);
-          background: rgba(255, 255, 255, 0.75);
-        }
+.iconBtn:hover {
+  background: rgba(139,92,246,0.25);
+  border-color: rgba(139,92,246,0.6);
+  transform: translateY(-2px);
+}
 
-        .iconBtn.danger {
-          background: rgba(220, 53, 69, 0.12);
-          border-color: rgba(220, 53, 69, 0.35);
-        }
+.iconBtn.danger {
+  background: rgba(220,53,69,0.15);
+  border-color: rgba(220,53,69,0.5);
+}
 
-        .starBtn {
-          color: rgba(17, 17, 17, 0.72) !important;
-        }
-        .starBtn.favOn {
-          color: #ffc107 !important;
-          filter: drop-shadow(0 6px 12px rgba(255, 193, 7, 0.25));
-        }
+/* ⭐ FAVORITE STAR GLOW */
+.starBtn.favOn {
+  color: #ffd54a !important;
+  filter: drop-shadow(0 0 12px #ffd54a);
+}
 
-        .urlClamp {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-          word-break: break-word;
-        }
+/* 🏷 TAG PILL */
+.pillSoft {
+  background: rgba(139,92,246,0.25) !important;
+  border: 1px solid rgba(139,92,246,0.6);
+  color: #dcd7ff !important;
+}
 
-        .emptyBox {
-          border-radius: 20px;
-          border: 1px dashed var(--border);
-          background: rgba(255, 255, 255, 0.05);
-        }
+/* 📦 EMPTY STATE */
+.emptyBox {
+  border-radius: 24px;
+  border: 1px dashed rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+}
 
-        .modalBackdrop {
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.55);
-          display: grid;
-          place-items: center;
-          padding: 16px;
-          z-index: 1000;
-        }
-        .modalCard {
-          width: min(460px, 96vw);
-          border-radius: 22px;
-          background: var(--panel);
-          backdrop-filter: blur(18px);
-          border: 1px solid var(--border2);
-        }
+/* 📱 MODAL */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,20,0.85);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
 
-        .toastBox {
-          position: fixed;
-          left: 50%;
-          bottom: 22px;
-          transform: translateX(-50%);
-          z-index: 1100;
-        }
-        .toastPill {
-          border-radius: 999px;
-          padding: 10px 14px;
-          background: rgba(0, 0, 0, 0.7);
-          color: #fff;
-          border: 1px solid rgba(255, 255, 255, 0.18);
-          backdrop-filter: blur(14px);
-        }
+/* 🍞 TOAST */
+.toastPill {
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: rgba(15,20,50,0.95);
+  border: 1px solid rgba(139,92,246,0.5);
+  backdrop-filter: blur(20px);
+}
 
-        .drawerBackdrop {
-          position: fixed;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.55);
-          z-index: 1200;
-          display: flex;
-          justify-content: flex-end;
-        }
-        .drawer {
-          width: min(420px, 92vw);
-          height: 100%;
-          background: var(--panel);
-          backdrop-filter: blur(18px);
-          border-left: 1px solid var(--border2);
-          box-shadow: var(--shadow);
-          display: flex;
-          flex-direction: column;
-          animation: slideIn 0.18s ease-out;
-        }
-        @keyframes slideIn {
-          from {
-            transform: translateX(18px);
-            opacity: 0.8;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .drawerHeader {
-          padding: 14px 14px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px solid var(--border2);
-        }
-        .drawerBody {
-          padding: 14px;
-          overflow: auto;
-        }
-        .drawerIcon {
-          width: 42px;
-          height: 42px;
-          border-radius: 16px;
-          display: grid;
-          place-items: center;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.06);
-        }
+/* NAV PILLS */
+.navPillsSoft .nav-link {
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+  border: 1px solid transparent;
+}
 
-        @media (max-width: 576px) {
-          .topbar {
-            top: 8px;
-          }
-          .searchInput {
-            font-size: 0.95rem;
-          }
-        }
-      `}</style>
+.navPillsSoft .nav-link.active {
+  background: linear-gradient(135deg,#8b5cf6,#6366f1);
+  color: white;
+}
+/* ===== TEXT VISIBILITY FIX ===== */
+
+/* force readable text */
+body {
+  color: inherit;
+}
+
+/* ===== 🎯 THEME BASED HEADING FIX ===== */
+
+/* dark mode headings */
+.themeDark h1,
+.themeDark h2,
+.themeDark h3,
+.themeDark h4,
+.themeDark h5,
+.themeDark h6,
+.themeDark .bookmarksTitle,
+.themeDark .brandTitle {
+  color: #f5f7ff !important;
+  text-shadow:
+    0 0 18px rgba(139,92,246,0.45),
+    0 2px 10px rgba(0,0,0,0.6);
+}
+
+/* light mode headings */
+.themeLight h1,
+.themeLight h2,
+.themeLight h3,
+.themeLight h4,
+.themeLight h5,
+.themeLight h6,
+.themeLight .bookmarksTitle,
+.themeLight .brandTitle {
+  color: #0f172a !important; /* dark text */
+  text-shadow: none !important;
+}
+  /* muted text per theme */
+.themeDark .text-muted {
+  color: #aab2ff !important;
+}
+
+.themeLight .text-muted {
+  color: #64748b !important;
+}
+
+
+
+/* ===============================
+   🎯 FINAL HEADING VISIBILITY FIX
+   =============================== */
+
+/* DARK MODE */
+.themeDark .brandTitle,
+.themeDark .bookmarksTitle {
+  color: #f5f7ff !important;
+  text-shadow:
+    0 0 18px rgba(139,92,246,0.45),
+    0 2px 10px rgba(0,0,0,0.6);
+}
+
+/* LIGHT MODE */
+.themeLight .brandTitle,
+.themeLight .bookmarksTitle {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+/* subtitle fix */
+.themeDark .brandSub {
+  color: #aab2ff !important;
+}
+
+.themeLight .brandSub {
+  color: #64748b !important;
+}
+
+
+
+/* quick tag buttons */
+.btn-outline-secondary {
+  color: #cfd6ff !important;
+  border-color: rgba(255,255,255,0.25);
+}
+
+.btn-outline-secondary:hover {
+  background: rgba(139,92,246,0.25);
+  color: #fff;
+}
+
+/* 🔗 bookmark leading icon */
+.favWrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg,#8b5cf6,#6366f1);
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(99,102,241,0.45);
+  flex-shrink: 0;
+}
+
+.favWrap i {
+  font-size: 18px;
+  color: #ffffff;
+}
+  /* 🎯 ensure icons always visible */
+.iconBtn i,
+.nav-link i,
+.btn i,
+.badge i {
+  color: inherit;
+  font-size: 16px;
+}
+  .themeDark .iconBtn {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+}
+  /* ===================================
+   🎯 MASTER TEXT SYSTEM (FINAL FIX)
+   =================================== */
+
+/* ---------- DARK MODE ---------- */
+
+.themeDark .form-control,
+.themeDark .searchInput {
+  color: #ffffff !important;
+}
+
+.themeDark .form-control::placeholder,
+.themeDark .searchInput::placeholder {
+  color: #8f96c9 !important;
+}
+
+.themeDark .list-group-item {
+  color: #f7eaff !important;
+}
+
+.themeDark .nav-link {
+  color: #dfe3ff !important;
+}
+
+.themeDark .bookmarkCard .fw-semibold {
+  color: #f5f7ff !important;
+}
+
+.themeDark .bookmarkCard .small.text-muted {
+  color: #9aa3c7 !important;
+}
+
+.themeDark .brandSub {
+  color: #aab2ff !important;
+}
+
+/* ---------- LIGHT MODE ---------- */
+
+.themeLight .form-control,
+.themeLight .searchInput {
+  color: #0f172a !important;
+}
+
+.themeLight .form-control::placeholder,
+.themeLight .searchInput::placeholder {
+  color: #64748b !important;
+}
+
+.themeLight .list-group-item {
+  color: #0f172a !important;
+}
+
+.themeLight .nav-link {
+  color: #334155 !important;
+}
+
+.themeLight .bookmarkCard .fw-semibold {
+  color: #0f172a !important;
+}
+
+.themeLight .bookmarkCard .small.text-muted {
+  color: #64748b !important;
+}
+
+.themeLight .brandSub {
+  color: #64748b !important;
+}
+
+.themeDark .iconBtn:hover {
+  background: rgba(139,92,246,0.35);
+}
+  .themeLight .iconBtn {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.08);
+  color: #334155;
+}
+
+.themeLight .iconBtn:hover {
+  background: rgba(99,102,241,0.15);
+  color: #111827;
+}  
+  /* ==============================
+   🧭 SIDEBAR HEADING VISIBILITY
+   ============================== */
+
+/* dark mode */
+.themeDark .fw-semibold {
+  color: #f5f7ff !important;
+}
+
+/* light mode */
+.themeLight .fw-semibold {
+  color: #0f172a !important;
+}
+
+/* sidebar count badge readability */
+.themeDark .pillSoft {
+  color: #ffffff !important;
+}
+
+.themeLight .pillSoft {
+  color: #1e293b !important;
+}
+
+/* quick tags heading specifically */
+.themeDark .filtersCompact .fw-semibold,
+.themeDark .stickySide .fw-semibold {
+  color: #f5f7ff !important;
+}
+
+.themeLight .filtersCompact .fw-semibold,
+.themeLight .stickySide .fw-semibold {
+  color: #0f172a !important;
+}
+  .themeDark .sidebarTitle {
+  color: #f5f7ff;
+  text-shadow: 0 0 12px rgba(139,92,246,0.35);
+}
+
+.themeLight .sidebarTitle {
+  color: #0f172a;
+}
+/* ==============================
+   🔥 ULTIMATE VISIBILITY PATCH
+   ============================== */
+
+/* force theme text everywhere */
+.themeDark,
+.themeDark * {
+  color: var(--text);
+}
+
+/* stronger sidebar contrast */
+.themeDark .listGroupSoft .list-group-item {
+  background: rgba(255,255,255,0.08) !important;
+  color: #eef2ff !important;
+}
+
+/* active sidebar glow */
+.themeDark .listGroupSoft .list-group-item.active {
+  background: linear-gradient(135deg,#8b5cf6,#6366f1) !important;
+  color: #ffffff !important;
+}
+
+/* search box better contrast */
+.themeDark .searchInput {
+  background: rgba(10,12,40,0.6) !important;
+  border-color: rgba(139,92,246,0.5) !important;
+}
+
+/* cards text boost */
+.themeDark .bookmarkCard {
+  color: #eef2ff !important;
+}
+
+/* nav pills readability */
+.themeDark .navPillsSoft .nav-link {
+  background: rgba(255,255,255,0.08);
+  color: #e5e9ff !important;
+}
+
+/* modal input visibility */
+.themeDark .modalCard .form-control {
+  background: rgba(10,12,40,0.6);
+  color: #ffffff !important;
+  border-color: rgba(139,92,246,0.4);
+}
+
+/* toast readability */
+.themeDark .toastPill {
+  color: #ffffff;
+}
+
+/* small muted fix */
+.themeDark .text-muted {
+  color: #aab2ff !important;
+}
+
+/*mine*/
+/* ===============================
+   🌌 PREMIUM ANIMATED BACKGROUND
+   =============================== */
+
+.themeDark body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(139,92,246,0.25), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(59,130,246,0.25), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(236,72,153,0.18), transparent 45%);
+  filter: blur(40px);
+  z-index: -1;
+  animation: bgFloat 18s ease-in-out infinite alternate;
+}
+
+@keyframes bgFloat {
+  from { transform: translateY(-20px) scale(1); }
+  to { transform: translateY(20px) scale(1.05); }
+}
+/* ===============================
+   🧲 MAGNETIC CARD HOVER
+   =============================== */
+
+.bookmarkCard {
+  transition: all 0.25s ease;
+  transform-style: preserve-3d;
+}
+
+.bookmarkCard:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow:
+    0 20px 60px rgba(139,92,246,0.25),
+    0 10px 30px rgba(0,0,0,0.35);
+}
+/* ===============================
+   ✨ GLOW BUTTON
+   =============================== */
+
+.btnPremium {
+  position: relative;
+  overflow: hidden;
+}
+
+.btnPremium::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(120deg,#8b5cf6,#6366f1,#22c55e);
+  filter: blur(14px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: -1;
+}
+
+.btnPremium:hover::after {
+  opacity: 0.7;
+}
+  /* ===============================
+   🚀 SIDEBAR ACTIVE BOOST
+   =============================== */
+
+.themeDark .listGroupSoft .list-group-item.active {
+  background: linear-gradient(135deg,#8b5cf6,#6366f1) !important;
+  box-shadow: 0 10px 30px rgba(139,92,246,0.45);
+}
+  /* ===============================
+   🎯 GLOBAL SMOOTHNESS
+   =============================== */
+
+* {
+  scroll-behavior: smooth;
+}
+
+.card,
+.list-group-item,
+.nav-link,
+.btn {
+  transition: all 0.18s ease;
+}
+`}</style>
     </div>
   )
 }
