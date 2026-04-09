@@ -462,41 +462,22 @@ export default function Home() {
           </div>
         </div>
 
-     {!user ? (
-  <div className="row align-items-center mt-5">
-
-    {/* LEFT SIDE (3D / Illustration) */}
-    <div className="col-md-6 text-center mb-4 mb-md-0">
-      <div className="hero3d">
-        <img
-          src="https://cdn.dribbble.com/users/1162077/screenshots/3848914/programmer.gif"
-          alt="thinking human"
-          className="img-fluid"
-        />
-      </div>
-    </div>
-
-    {/* RIGHT SIDE LOGIN CARD */}
-    <div className="col-md-6">
-      <div className="card border-0 shadow-lg glassCard loginCard3d">
-        <div className="card-body p-5 text-center">
-
-          <h2 className="fw-bold mb-2 gradientText">Welcome Back 👋</h2>
-          <p className="text-muted mb-4">
-            Save your ideas. Organize your web life.
-          </p>
-
-          <button onClick={handleLogin} className="btn btnLogin3d w-100">
-            <i className="bi bi-google me-2" />
-            Continue with Google
-          </button>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-) : (
+  {!user ? (
+          <div className="row justify-content-center mt-4">
+            <div className="col-md-7 col-lg-5">
+              <div className="card border-0 shadow-sm glassCard">
+                <div className="card-body p-4 text-center">
+                  <div className="display-6 fw-bold">Welcome</div>
+                  <p className="text-muted mb-4">Login to save and favorite your bookmarks.</p>
+                  <button onClick={handleLogin} className="btn btn-primary w-100">
+                    <i className="bi bi-google me-2" />
+                    Continue with Google
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
           <div className="row g-3 mt-2">
             <div className="col-lg-3 d-none d-lg-block">
               <div className="card border-0 shadow-sm glassCard h-100 stickySide">
