@@ -462,7 +462,7 @@ export default function Home() {
           </div>
         </div>
 
-  {!user ? (
+        {!user ? (
           <div className="row justify-content-center mt-4">
             <div className="col-md-7 col-lg-5">
               <div className="card border-0 shadow-sm glassCard">
@@ -1242,55 +1242,6 @@ body {
 .nav-link,
 .btn {
   transition: all 0.18s ease;
-}
-/* ===============================
-   🔥 LOGIN 3D UI UPGRADE
-   =============================== */
-
-.hero3d img {
-  max-width: 100%;
-  filter: drop-shadow(0 20px 60px rgba(139,92,246,0.4));
-  animation: floatHero 4s ease-in-out infinite;
-}
-
-@keyframes floatHero {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
-}
-
-/* 3D Card */
-.loginCard3d {
-  transform: perspective(1000px) rotateY(-4deg);
-  transition: 0.4s ease;
-}
-
-.loginCard3d:hover {
-  transform: perspective(1000px) rotateY(0deg) scale(1.02);
-}
-
-/* Gradient text */
-.gradientText {
-  background: linear-gradient(90deg,#8b5cf6,#6366f1,#22c55e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* 3D Button */
-.btnLogin3d {
-  background: linear-gradient(135deg,#22c55e,#16a34a);
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-weight: 600;
-  color: #fff;
-  box-shadow: 0 15px 40px rgba(34,197,94,0.5);
-  transition: 0.25s ease;
-}
-
-.btnLogin3d:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 25px 60px rgba(34,197,94,0.7);
 }
 `}</style>
     </div>
